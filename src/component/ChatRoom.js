@@ -18,7 +18,7 @@ const ChatRoom = () => {
   }, [userData]);
 
   const connect = () => {
-    let Sock = new SockJS("https://chat-sever-five.vercel.app/ws");
+    let Sock = new SockJS("http://localhost:8080/ws");
     stompClient = over(Sock);
     stompClient.connect({}, onConnected, onError);
   };
@@ -117,9 +117,13 @@ const ChatRoom = () => {
 
   const registerUser = () => {
     connect();
+    document.getElementById("name-user").style.display = "block";
   };
   return (
     <div className="container">
+      <h3 className="header" id="name-user">
+        Chủ tài khoản: {userData.username}
+      </h3>
       {userData.connected ? (
         <div className="chat-box">
           <div className="member-list">
