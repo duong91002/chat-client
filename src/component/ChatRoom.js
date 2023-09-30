@@ -13,16 +13,12 @@ const ChatRoom = () => {
     connected: false,
     message: "",
   });
-  useEffect(() => {
-    console.log(userData);
-  }, [userData]);
-
-  const connect = () => {
+  const registerUser = () => {
     let Sock = new SockJS("http://localhost:8080/ws");
     stompClient = over(Sock);
     stompClient.connect({}, onConnected, onError);
+    document.getElementById("name-user").style.display = "block";
   };
-
   const onConnected = () => {
     setUserData({ ...userData, connected: true });
     stompClient.subscribe("/chatroom/public", onMessageReceived);
@@ -58,7 +54,6 @@ const ChatRoom = () => {
   };
 
   const onPrivateMessage = (payload) => {
-    console.log(payload);
     var payloadData = JSON.parse(payload.body);
     if (privateChats.get(payloadData.senderName)) {
       privateChats.get(payloadData.senderName).push(payloadData);
@@ -86,7 +81,6 @@ const ChatRoom = () => {
         message: userData.message,
         status: "MESSAGE",
       };
-      console.log(chatMessage);
       stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
       setUserData({ ...userData, message: "" });
     }
@@ -115,10 +109,6 @@ const ChatRoom = () => {
     setUserData({ ...userData, username: value });
   };
 
-  const registerUser = () => {
-    connect();
-    document.getElementById("name-user").style.display = "block";
-  };
   return (
     <div className="container">
       <h3 className="header" id="name-user">
@@ -136,17 +126,21 @@ const ChatRoom = () => {
               >
                 Chatroom
               </li>
-              {[...privateChats.keys()].map((name, index) => (
-                <li
-                  onClick={() => {
-                    setTab(name);
-                  }}
-                  className={`member ${tab === name && "active"}`}
-                  key={index}
-                >
-                  {name}
-                </li>
-              ))}
+              {[...privateChats.keys()].map((name, index) =>
+                name !== userData.username ? (
+                  <li
+                    onClick={() => {
+                      setTab(name);
+                    }}
+                    className={`member ${tab === name && "active"}`}
+                    key={index}
+                  >
+                    {name}
+                  </li>
+                ) : (
+                  ""
+                )
+              )}
             </ul>
           </div>
           {tab === "CHATROOM" && (
